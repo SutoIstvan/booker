@@ -90,6 +90,8 @@ interface Venue {
     city: string | null;
     cover_image: string | null;
     logo: string | null;
+    gallery: string[] | null;
+    portfolio: string[] | null;
     primary_color: string;
     is_active: boolean;
     services: Service[];
@@ -105,7 +107,8 @@ interface Props {
 export default function VenueEdit({ venue, bookings }: Props) {
     const [activeTab, setActiveTab] = useState('details');
 
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
+        _method: 'PUT',
         name: venue.name || '',
         slug: venue.slug || '',
         description: venue.description || '',
@@ -115,13 +118,19 @@ export default function VenueEdit({ venue, bookings }: Props) {
         city: venue.city || '',
         primary_color: venue.primary_color || '#18181b',
         is_active: venue.is_active ?? true,
+        logo: null as File | null,
+        remove_logo: false,
+        existing_gallery: (venue.gallery || []) as string[],
+        gallery: [] as File[],
+        existing_portfolio: (venue.portfolio || []) as string[],
+        portfolio: [] as File[],
     });
 
     const { delete: destroyVenue, processing: deleting } = useForm({});
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(`/dashboard/venues/${venue.id}`);
+        post(`/dashboard/venues/${venue.id}`);
     };
 
     const handleDelete = () => {
@@ -309,6 +318,162 @@ export default function VenueEdit({ venue, bookings }: Props) {
                                             className="rounded-xl border-neutral-200 dark:border-neutral-800"
                                         />
                                         <InputError message={errors.description} />
+                                    </div>
+
+                                    {/* Media & Uploads */}
+                                    <div className="space-y-4 border-t border-neutral-100 dark:border-neutral-800 pt-5 text-left">
+                                        <div>
+                                            <Label className="text-sm font-semibold">Media & Brand Assets</Label>
+                                            <span className="text-xs text-neutral-400 block mt-0.5">
+                                                Upload your business logo, gallery cover photos, and work portfolio.
+                                            </span>
+                                        </div>
+
+                                        <div className="grid gap-6 md:grid-cols-3">
+                                            {/* 1. LOGO UPLOAD */}
+                                            <div className="space-y-2.5">
+                                                <Label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Business Logo</Label>
+                                                <div className="border border-dashed border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center bg-neutral-50/50 dark:bg-neutral-900/20 min-h-[140px]">
+                                                    {venue.logo && !data.remove_logo ? (
+                                                        <div className="relative group">
+                                                            <img 
+                                                                src={venue.logo} 
+                                                                alt="Logo" 
+                                                                className="h-20 w-20 rounded-xl object-cover border border-neutral-200 shadow-sm"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setData('remove_logo', true)}
+                                                                className="absolute -top-2 -right-2 bg-red-100 text-red-650 hover:bg-red-200 rounded-full p-1 border border-red-200 shadow-sm transition-colors"
+                                                            >
+                                                                <Trash2 className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col items-center justify-center text-center">
+                                                            <div className="h-10 w-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-400 mb-2">
+                                                                <Building2 className="h-5 w-5" />
+                                                            </div>
+                                                            <span className="text-xs text-neutral-500 font-semibold mb-1">Upload Logo</span>
+                                                            <span className="text-[10px] text-neutral-400">PNG, JPG up to 2MB</span>
+                                                            <input 
+                                                                type="file" 
+                                                                accept="image/*"
+                                                                onChange={(e) => {
+                                                                    if (e.target.files?.[0]) {
+                                                                        setData({ ...data, logo: e.target.files[0], remove_logo: false });
+                                                                    }
+                                                                }}
+                                                                className="mt-2 text-[10px] text-neutral-500 max-w-[150px] cursor-pointer"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <InputError message={errors.logo} />
+                                            </div>
+
+                                            {/* 2. GALLERY UPLOAD */}
+                                            <div className="space-y-2.5 md:col-span-2">
+                                                <Label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Gallery Photos</Label>
+                                                <div className="border border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 bg-white dark:bg-neutral-900/10 min-h-[140px] space-y-4">
+                                                    {/* Existing gallery preview */}
+                                                    {data.existing_gallery.length > 0 && (
+                                                        <div className="flex flex-wrap gap-2.5">
+                                                            {data.existing_gallery.map((imgUrl, idx) => (
+                                                                <div key={idx} className="relative group">
+                                                                    <img 
+                                                                        src={imgUrl} 
+                                                                        alt={`Gallery ${idx}`} 
+                                                                        className="h-14 w-20 rounded-lg object-cover border border-neutral-200 shadow-sm"
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const updated = data.existing_gallery.filter((_, i) => i !== idx);
+                                                                            setData('existing_gallery', updated);
+                                                                        }}
+                                                                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                    >
+                                                                        <Trash2 className="h-2.5 w-2.5" />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-100 dark:border-neutral-800/80 pt-3">
+                                                        <div className="text-left">
+                                                            <span className="text-xs text-neutral-500 font-semibold block">Add Gallery Photos</span>
+                                                            <span className="text-[10px] text-neutral-400 block mt-0.5">Select one or more photos (max 4MB each)</span>
+                                                        </div>
+                                                        <input 
+                                                            type="file" 
+                                                            accept="image/*"
+                                                            multiple
+                                                            onChange={(e) => {
+                                                                if (e.target.files) {
+                                                                    const filesArray = Array.from(e.target.files);
+                                                                    setData('gallery', filesArray);
+                                                                }
+                                                            }}
+                                                            className="text-xs text-neutral-500 cursor-pointer max-w-[200px]"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <InputError message={errors.gallery} />
+                                            </div>
+                                        </div>
+
+                                        {/* 3. PORTFOLIO UPLOAD */}
+                                        <div className="space-y-2.5">
+                                            <Label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Portfolio Photos</Label>
+                                            <div className="border border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 bg-white dark:bg-neutral-900/10 min-h-[140px] space-y-4">
+                                                {/* Existing portfolio preview */}
+                                                {data.existing_portfolio.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2.5">
+                                                        {data.existing_portfolio.map((imgUrl, idx) => (
+                                                            <div key={idx} className="relative group">
+                                                                <img 
+                                                                    src={imgUrl} 
+                                                                    alt={`Portfolio ${idx}`} 
+                                                                    className="h-14 w-20 rounded-lg object-cover border border-neutral-200 shadow-sm"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const updated = data.existing_portfolio.filter((_, i) => i !== idx);
+                                                                        setData('existing_portfolio', updated);
+                                                                    }}
+                                                                    className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                >
+                                                                    <Trash2 className="h-2.5 w-2.5" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-100 dark:border-neutral-800/80 pt-3">
+                                                    <div className="text-left">
+                                                        <span className="text-xs text-neutral-500 font-semibold block">Add Portfolio Photos</span>
+                                                        <span className="text-[10px] text-neutral-400 block mt-0.5">Select one or more photos (max 4MB each)</span>
+                                                    </div>
+                                                    <input 
+                                                        type="file" 
+                                                        accept="image/*"
+                                                        multiple
+                                                        onChange={(e) => {
+                                                            if (e.target.files) {
+                                                                const filesArray = Array.from(e.target.files);
+                                                                setData('portfolio', filesArray);
+                                                            }
+                                                        }}
+                                                        className="text-xs text-neutral-500 cursor-pointer max-w-[200px]"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <InputError message={errors.portfolio} />
+                                        </div>
                                     </div>
 
                                     {/* Color selector */}

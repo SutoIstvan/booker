@@ -100,9 +100,6 @@ class VenueController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified venue in storage.
-     */
     public function update(Request $request, Venue $venue): RedirectResponse
     {
         if ($venue->user_id !== $request->user()->id) {
@@ -132,9 +129,72 @@ class VenueController extends Controller
             'city' => ['nullable', 'string', 'max:255'],
             'primary_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'is_active' => ['required', 'boolean'],
+            'logo' => ['nullable', 'image', 'max:2048'],
+            'remove_logo' => ['nullable', 'boolean'],
+            'existing_gallery' => ['nullable', 'array'],
+            'gallery' => ['nullable', 'array'],
+            'gallery.*' => ['image', 'max:4096'],
+            'existing_portfolio' => ['nullable', 'array'],
+            'portfolio' => ['nullable', 'array'],
+            'portfolio.*' => ['image', 'max:4096'],
         ]);
 
-        $venue->update($validated);
+        // Process Logo
+        if ($request->hasFile('logo')) {
+            if ($venue->logo) {
+                @unlink(public_path($venue->logo));
+            }
+            $file = $request->file('logo');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/venues/logos'), $filename);
+            $venue->logo = '/uploads/venues/logos/' . $filename;
+        } elseif ($request->boolean('remove_logo')) {
+            if ($venue->logo) {
+                @unlink(public_path($venue->logo));
+            }
+            $venue->logo = null;
+        }
+
+        // Process Gallery
+        $gallery = $request->input('existing_gallery', []);
+        if (!is_array($gallery)) {
+            $gallery = [];
+        }
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/venues/gallery'), $filename);
+                $gallery[] = '/uploads/venues/gallery/' . $filename;
+            }
+        }
+        $venue->gallery = $gallery;
+
+        // Process Portfolio
+        $portfolio = $request->input('existing_portfolio', []);
+        if (!is_array($portfolio)) {
+            $portfolio = [];
+        }
+        if ($request->hasFile('portfolio')) {
+            foreach ($request->file('portfolio') as $file) {
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/venues/portfolio'), $filename);
+                $portfolio[] = '/uploads/venues/portfolio/' . $filename;
+            }
+        }
+        $venue->portfolio = $portfolio;
+
+        // Update fields
+        $venue->name = $validated['name'];
+        $venue->slug = $validated['slug'];
+        $venue->description = $validated['description'];
+        $venue->category = $validated['category'];
+        $venue->phone = $validated['phone'];
+        $venue->address = $validated['address'];
+        $venue->city = $validated['city'];
+        $venue->primary_color = $validated['primary_color'];
+        $venue->is_active = $validated['is_active'];
+        
+        $venue->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Venue updated successfully.']);
 

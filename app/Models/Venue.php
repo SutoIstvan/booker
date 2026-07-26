@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'city',
     'cover_image',
     'logo',
+    'gallery',
+    'portfolio',
     'primary_color',
     'is_active',
 ])]
@@ -47,6 +49,8 @@ class Venue extends Model
     {
         return [
             'is_active' => 'boolean',
+            'gallery' => 'array',
+            'portfolio' => 'array',
         ];
     }
 

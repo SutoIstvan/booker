@@ -37,6 +37,8 @@ interface Venue {
     city: string | null;
     cover_image: string | null;
     logo: string | null;
+    gallery: string[] | null;
+    portfolio: string[] | null;
     primary_color: string;
     services: Service[];
     staff_members: StaffMember[];
@@ -80,51 +82,51 @@ export default function PublicVenuePage({ venue }: Props) {
                 <meta name="description" content={venue.description || `Book your appointment online at ${venue.name}.`} />
             </Head>
 
-            <main className="min-h-screen bg-zinc-950 text-white selection:bg-zinc-800 selection:text-white pb-16">
+            <main className="min-h-screen bg-zinc-50/70 text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 pb-16">
                 {/* Visual Ambient Glows */}
-                <div className="absolute top-0 inset-x-0 h-[500px] bg-[radial-gradient(ellipse_at_top,rgba(24,24,27,0.5),transparent)] pointer-events-none" />
-                <div 
-                    className="absolute top-24 left-1/4 w-[300px] h-[300px] rounded-full blur-3xl pointer-events-none opacity-20"
+                <div className="absolute top-0 inset-x-0 h-[500px] bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.015),transparent)] pointer-events-none" />
+                <div
+                    className="absolute top-24 left-1/4 w-[300px] h-[300px] rounded-full blur-3xl pointer-events-none opacity-[0.04]"
                     style={{ backgroundColor: pColor }}
                 />
 
                 {/* Banner / Cover */}
-                <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-zinc-900 border-b border-zinc-800/80">
+                <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-zinc-100 border-b border-zinc-200/80">
                     {venue.cover_image ? (
-                        <img 
-                            src={venue.cover_image} 
-                            alt={venue.name} 
-                            className="h-full w-full object-cover opacity-60"
+                        <img
+                            src={venue.cover_image}
+                            alt={venue.name}
+                            className="h-full w-full object-cover opacity-80"
                         />
                     ) : (
-                        <div 
-                            className="h-full w-full opacity-30 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950"
+                        <div
+                            className="h-full w-full opacity-40 bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200"
                             style={{ backgroundImage: `radial-gradient(circle at 50% 50%, ${pColor}1A, transparent)` }}
                         />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
-                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-50 via-zinc-50/10 to-transparent" />
+
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl px-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                         <div className="flex items-center gap-4">
                             {venue.logo ? (
-                                <img 
-                                    src={venue.logo} 
-                                    alt={venue.name} 
-                                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover bg-zinc-950 border border-zinc-800 p-1"
+                                <img
+                                    src={venue.logo}
+                                    alt={venue.name}
+                                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover bg-white border border-zinc-200/80 p-1 shadow-sm"
                                 />
                             ) : (
-                                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-center font-bold text-white shrink-0 text-2xl">
+                                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center font-extrabold text-zinc-700 shrink-0 text-2xl shadow-sm">
                                     {venue.name.charAt(0).toUpperCase()}
                                 </div>
                             )}
                             <div className="text-left space-y-1">
-                                <span 
-                                    className="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider text-white border"
-                                    style={{ borderColor: pColor + '4D', backgroundColor: pColor + '1A' }}
+                                <span
+                                    className="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider text-zinc-600 border bg-white shadow-sm"
+                                    style={{ borderColor: pColor + '33' }}
                                 >
                                     {venue.category || 'Booking page'}
                                 </span>
-                                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mt-1">
+                                <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight leading-tight mt-1">
                                     {venue.name}
                                 </h1>
                             </div>
@@ -134,42 +136,42 @@ export default function PublicVenuePage({ venue }: Props) {
 
                 {/* Main Content Layout */}
                 <div className="max-w-5xl mx-auto px-4 mt-8 space-y-12">
-                    
+
                     {/* Booking Widget: Centered Full-Width Row ("в целый ряд") */}
-                    <div className="max-w-3xl mx-auto w-full">
-                        <VenueBookingWidget 
-                            venue={venue} 
-                            services={venue.services} 
-                            staffMembers={venue.staff_members} 
+                    <div className="w-full">
+                        <VenueBookingWidget
+                            venue={venue}
+                            services={venue.services}
+                            staffMembers={venue.staff_members}
                         />
                     </div>
 
                     {/* Information Grid: Two Columns below the widget */}
-                    <div className="grid gap-8 md:grid-cols-2 pt-8 border-t border-zinc-900">
+                    <div className="grid gap-8 md:grid-cols-2 pt-8 border-t border-zinc-200">
                         {/* Column 1: About Us & Team */}
                         <div className="space-y-8 text-left">
                             {venue.description && (
                                 <section className="space-y-3">
-                                    <h3 className="text-lg font-bold text-white tracking-tight">About us</h3>
-                                    <p className="text-zinc-400 text-sm leading-relaxed">{venue.description}</p>
+                                    <h3 className="text-lg font-bold text-zinc-900 tracking-tight">About us</h3>
+                                    <p className="text-zinc-600 text-sm leading-relaxed">{venue.description}</p>
                                 </section>
                             )}
 
                             {venue.staff_members.length > 0 && (
                                 <section className="space-y-4">
-                                    <h3 className="text-lg font-bold text-white tracking-tight">Our Team</h3>
+                                    <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Our Team</h3>
                                     <div className="grid gap-3 sm:grid-cols-2">
                                         {venue.staff_members.map((member) => (
-                                            <div key={member.id} className="p-3.5 border border-zinc-800 rounded-2xl bg-zinc-900/10 flex items-center gap-3">
+                                            <div key={member.id} className="p-3.5 border border-zinc-200 rounded-2xl bg-white flex items-center gap-3 shadow-sm hover:border-zinc-300 transition-colors duration-200">
                                                 {member.avatar ? (
-                                                    <img src={member.avatar} alt={member.name} className="h-10 w-10 rounded-full object-cover border border-zinc-800" />
+                                                    <img src={member.avatar} alt={member.name} className="h-10 w-10 rounded-full object-cover border border-zinc-100" />
                                                 ) : (
-                                                    <div className="h-10 w-10 rounded-full bg-zinc-850 border border-zinc-800 flex items-center justify-center font-bold text-zinc-400 text-xs">
+                                                    <div className="h-10 w-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500 text-xs">
                                                         {member.name.substring(0, 2).toUpperCase()}
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <h4 className="font-bold text-sm text-zinc-200">{member.name}</h4>
+                                                    <h4 className="font-bold text-sm text-zinc-800">{member.name}</h4>
                                                     <p className="text-zinc-500 text-xs">{member.position || 'Specialist'}</p>
                                                 </div>
                                             </div>
@@ -182,17 +184,17 @@ export default function PublicVenuePage({ venue }: Props) {
                         {/* Column 2: Contact Details & Working Hours */}
                         <div className="space-y-8 text-left">
                             <section className="space-y-3">
-                                <h3 className="text-lg font-bold text-white tracking-tight">Contact & Location</h3>
-                                <div className="space-y-2.5 text-zinc-400 text-sm">
+                                <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Contact & Location</h3>
+                                <div className="space-y-2.5 text-zinc-600 text-sm">
                                     {venue.address && (
                                         <div className="flex items-start gap-2.5">
-                                            <MapPin className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
+                                            <MapPin className="w-4 h-4 text-zinc-400 shrink-0 mt-0.5" />
                                             <span>{venue.address}, {venue.city}</span>
                                         </div>
                                     )}
                                     {venue.phone && (
                                         <div className="flex items-center gap-2.5">
-                                            <Phone className="w-4 h-4 text-zinc-500 shrink-0" />
+                                            <Phone className="w-4 h-4 text-zinc-400 shrink-0" />
                                             <span>{venue.phone}</span>
                                         </div>
                                     )}
@@ -200,19 +202,19 @@ export default function PublicVenuePage({ venue }: Props) {
                             </section>
 
                             <section className="space-y-3">
-                                <h3 className="text-lg font-bold text-white tracking-tight">Working Hours</h3>
-                                <div className="space-y-1.5 text-xs text-zinc-400">
+                                <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Working Hours</h3>
+                                <div className="space-y-1.5 text-xs text-zinc-600">
                                     {DISPLAY_ORDER.map((dayIndex) => {
                                         const hrs = venue.working_hours.find(h => h.day_of_week === dayIndex);
                                         if (!hrs) return null;
 
                                         return (
                                             <div key={dayIndex} className="flex justify-between max-w-[280px]">
-                                                <span className="font-medium text-zinc-500">{DAY_NAMES[dayIndex]}</span>
+                                                <span className="font-medium text-zinc-400">{DAY_NAMES[dayIndex]}</span>
                                                 {hrs.is_day_off ? (
-                                                    <span className="text-zinc-600 italic">Closed</span>
+                                                    <span className="text-zinc-400 italic">Closed</span>
                                                 ) : (
-                                                    <span className="text-zinc-300 font-semibold">
+                                                    <span className="text-zinc-700 font-semibold">
                                                         {formatTime(hrs.open_time)} - {formatTime(hrs.close_time)}
                                                     </span>
                                                 )}
@@ -224,8 +226,44 @@ export default function PublicVenuePage({ venue }: Props) {
                         </div>
                     </div>
 
-                    <div className="border-t border-zinc-900 pt-6 flex items-center gap-2 text-zinc-500 text-xs text-left">
-                        <ShieldCheck className="w-4 h-4 text-zinc-600" />
+                    {/* Gallery Section */}
+                    {venue.gallery && venue.gallery.length > 0 && (
+                        <section className="space-y-4 pt-8 border-t border-zinc-200 text-left">
+                            <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Gallery</h3>
+                            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                                {venue.gallery.map((imgUrl, idx) => (
+                                    <div key={idx} className="relative aspect-video sm:aspect-square rounded-2xl overflow-hidden border border-zinc-200/80 bg-zinc-100 shadow-sm hover:opacity-95 transition-opacity">
+                                        <img
+                                            src={imgUrl}
+                                            alt={`Gallery ${idx + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Portfolio Section */}
+                    {venue.portfolio && venue.portfolio.length > 0 && (
+                        <section className="space-y-4 pt-8 border-t border-zinc-200 text-left">
+                            <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Portfolio & Works</h3>
+                            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                                {venue.portfolio.map((imgUrl, idx) => (
+                                    <div key={idx} className="relative aspect-video sm:aspect-square rounded-2xl overflow-hidden border border-zinc-200/80 bg-zinc-100 shadow-sm hover:opacity-95 transition-opacity">
+                                        <img
+                                            src={imgUrl}
+                                            alt={`Portfolio ${idx + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    <div className="border-t border-zinc-200 pt-6 flex items-center gap-2 text-zinc-400 text-xs text-left">
+                        <ShieldCheck className="w-4 h-4 text-zinc-400" />
                         <span>Secured booking page. Confirmation details sent to your email.</span>
                     </div>
 
