@@ -6,6 +6,7 @@ use App\Models\StaffMember;
 use App\Models\Venue;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class StaffController extends Controller
@@ -30,10 +31,8 @@ class StaffController extends Controller
 
         $avatarPath = null;
         if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/avatars'), $filename);
-            $avatarPath = '/uploads/avatars/' . $filename;
+            $path = $request->file('avatar')->store('staff/avatars', 'public');
+            $avatarPath = Storage::url($path);
         }
 
         /** @var StaffMember $staffMember */
@@ -80,14 +79,16 @@ class StaffController extends Controller
 
         if ($request->hasFile('avatar')) {
             // Delete old avatar if exists
-            if ($staff->avatar && file_exists(public_path($staff->avatar))) {
-                @unlink(public_path($staff->avatar));
+            if ($staff->avatar) {
+                if (str_starts_with($staff->avatar, '/storage/')) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $staff->avatar));
+                } else {
+                    @unlink(public_path($staff->avatar));
+                }
             }
 
-            $file = $request->file('avatar');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/avatars'), $filename);
-            $updateData['avatar'] = '/uploads/avatars/' . $filename;
+            $path = $request->file('avatar')->store('staff/avatars', 'public');
+            $updateData['avatar'] = Storage::url($path);
         }
 
         $staff->update($updateData);
@@ -113,8 +114,12 @@ class StaffController extends Controller
         }
 
         // Delete avatar if exists
-        if ($staff->avatar && file_exists(public_path($staff->avatar))) {
-            @unlink(public_path($staff->avatar));
+        if ($staff->avatar) {
+            if (str_starts_with($staff->avatar, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $staff->avatar));
+            } else {
+                @unlink(public_path($staff->avatar));
+            }
         }
 
         $staff->delete();

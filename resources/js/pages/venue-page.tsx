@@ -76,6 +76,43 @@ export default function PublicVenuePage({ venue }: Props) {
         }
     };
 
+    // Combine all available images: cover_image, gallery, and portfolio
+    const rawImages = [
+        ...(venue.cover_image ? [venue.cover_image] : []),
+        ...(venue.gallery || []),
+        ...(venue.portfolio || []),
+    ];
+
+    // Deduplicate images
+    const uniqueImages = Array.from(new Set(rawImages));
+
+    // Split unique images into columns (max 5 columns, max 2 rows/images per column, up to 10 images total)
+    const colsCount = Math.min(5, uniqueImages.length);
+    const columns: string[][] = Array.from({ length: colsCount }, () => []);
+    uniqueImages.slice(0, colsCount * 2).forEach((img, idx) => {
+        columns[idx % colsCount].push(img);
+    });
+
+    const getGridColsClass = () => {
+        if (colsCount === 1) return 'grid-cols-1';
+        if (colsCount === 2) return 'grid-cols-2';
+        if (colsCount === 3) return 'grid-cols-2 sm:grid-cols-3';
+        if (colsCount === 4) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4';
+        return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5';
+    };
+
+    // Deterministic height classes mapping for a neat masonry look
+    const getImgHeightClass = (colIdx: number, imgIdx: number) => {
+        const heights = [
+            ['h-24 sm:h-28', 'h-36 sm:h-44', 'h-28 sm:h-36'],
+            ['h-40 sm:h-48', 'h-20 sm:h-28', 'h-32 sm:h-40'],
+            ['h-28 sm:h-36', 'h-32 sm:h-40', 'h-40 sm:h-48'],
+            ['h-36 sm:h-44', 'h-28 sm:h-36', 'h-20 sm:h-28'],
+            ['h-32 sm:h-40', 'h-40 sm:h-48', 'h-24 sm:h-32'],
+        ];
+        return heights[colIdx % 5][imgIdx % 3];
+    };
+
     return (
         <>
             <Head title={`${venue.name} - Online Booking`}>
@@ -90,22 +127,57 @@ export default function PublicVenuePage({ venue }: Props) {
                     style={{ backgroundColor: pColor }}
                 />
 
-                {/* Banner / Cover */}
-                <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-zinc-100 border-b border-zinc-200/80">
-                    {venue.cover_image ? (
-                        <img
-                            src={venue.cover_image}
-                            alt={venue.name}
-                            className="h-full w-full object-cover opacity-80"
-                        />
+                {/* Banner / Cover with Masonry Background */}
+                <div className="relative h-72 sm:h-96 w-full overflow-hidden bg-zinc-100 border-b border-zinc-200/80">
+                    {uniqueImages.length > 0 ? (
+                        /* Masonry Image Grid */
+                        <div className="absolute inset-0 w-full h-full overflow-hidden select-none pointer-events-none">
+                            <div className={`grid ${getGridColsClass()} gap-2.5 p-2.5 h-full opacity-100 transition-opacity duration-300`}>
+                                {columns.map((colImages, colIdx) => (
+                                    <div
+                                        key={colIdx}
+                                        className={`flex flex-col gap-2.5 ${colIdx === 2 ? 'hidden sm:flex' :
+                                            colIdx === 3 ? 'hidden md:flex' :
+                                                colIdx === 4 ? 'hidden lg:flex' : ''
+                                            }`}
+                                    >
+                                        {colImages.map((img, imgIdx) => (
+                                            <div
+                                                key={imgIdx}
+                                                className={`w-full overflow-hidden rounded-xl border border-zinc-200/30 bg-zinc-50 shadow-inner ${getImgHeightClass(colIdx, imgIdx)}`}
+                                            >
+                                                <img
+                                                    src={img}
+                                                    alt=""
+                                                    className="w-full h-full object-cover"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : (
+                        /* Default ambient background when no images exist */
                         <div
                             className="h-full w-full opacity-40 bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200"
                             style={{ backgroundImage: `radial-gradient(circle at 50% 50%, ${pColor}1A, transparent)` }}
                         />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-50 via-zinc-50/10 to-transparent" />
 
+                    {/* Radial Brand Glow Overlay for Bespoke Brand Association */}
+                    <div
+                        className="absolute inset-0 pointer-events-none opacity-[0.07]"
+                        style={{
+                            backgroundImage: `radial-gradient(circle at 50% 30%, ${pColor}, transparent)`,
+                        }}
+                    />
+
+                    {/* Clean Gradient fade at bottom to integrate seamlessly with main content and improve text legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-50 via-zinc-70/100 to-transparent pointer-events-none" />
+
+                    {/* Banner Contents: Logo, Title, and Category */}
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl px-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                         <div className="flex items-center gap-4">
                             {venue.logo ? (
@@ -225,24 +297,6 @@ export default function PublicVenuePage({ venue }: Props) {
                             </section>
                         </div>
                     </div>
-
-                    {/* Gallery Section */}
-                    {venue.gallery && venue.gallery.length > 0 && (
-                        <section className="space-y-4 pt-8 border-t border-zinc-200 text-left">
-                            <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Gallery</h3>
-                            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-                                {venue.gallery.map((imgUrl, idx) => (
-                                    <div key={idx} className="relative aspect-video sm:aspect-square rounded-2xl overflow-hidden border border-zinc-200/80 bg-zinc-100 shadow-sm hover:opacity-95 transition-opacity">
-                                        <img
-                                            src={imgUrl}
-                                            alt={`Gallery ${idx + 1}`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
 
                     {/* Portfolio Section */}
                     {venue.portfolio && venue.portfolio.length > 0 && (

@@ -7,6 +7,7 @@ use App\Models\WorkingHour;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -142,15 +143,21 @@ class VenueController extends Controller
         // Process Logo
         if ($request->hasFile('logo')) {
             if ($venue->logo) {
-                @unlink(public_path($venue->logo));
+                if (str_starts_with($venue->logo, '/storage/')) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $venue->logo));
+                } else {
+                    @unlink(public_path($venue->logo));
+                }
             }
-            $file = $request->file('logo');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/venues/logos'), $filename);
-            $venue->logo = '/uploads/venues/logos/' . $filename;
+            $path = $request->file('logo')->store('venues/logos', 'public');
+            $venue->logo = Storage::url($path);
         } elseif ($request->boolean('remove_logo')) {
             if ($venue->logo) {
-                @unlink(public_path($venue->logo));
+                if (str_starts_with($venue->logo, '/storage/')) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $venue->logo));
+                } else {
+                    @unlink(public_path($venue->logo));
+                }
             }
             $venue->logo = null;
         }
@@ -160,11 +167,22 @@ class VenueController extends Controller
         if (!is_array($gallery)) {
             $gallery = [];
         }
+
+        // Find deleted gallery images and delete them from disk
+        $oldGallery = $venue->gallery ?? [];
+        $deletedGallery = array_diff($oldGallery, $gallery);
+        foreach ($deletedGallery as $imgUrl) {
+            if (str_starts_with($imgUrl, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $imgUrl));
+            } else {
+                @unlink(public_path($imgUrl));
+            }
+        }
+
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $file) {
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/venues/gallery'), $filename);
-                $gallery[] = '/uploads/venues/gallery/' . $filename;
+                $path = $file->store('venues/gallery', 'public');
+                $gallery[] = Storage::url($path);
             }
         }
         $venue->gallery = $gallery;
@@ -174,11 +192,22 @@ class VenueController extends Controller
         if (!is_array($portfolio)) {
             $portfolio = [];
         }
+
+        // Find deleted portfolio images and delete them from disk
+        $oldPortfolio = $venue->portfolio ?? [];
+        $deletedPortfolio = array_diff($oldPortfolio, $portfolio);
+        foreach ($deletedPortfolio as $imgUrl) {
+            if (str_starts_with($imgUrl, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $imgUrl));
+            } else {
+                @unlink(public_path($imgUrl));
+            }
+        }
+
         if ($request->hasFile('portfolio')) {
             foreach ($request->file('portfolio') as $file) {
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/venues/portfolio'), $filename);
-                $portfolio[] = '/uploads/venues/portfolio/' . $filename;
+                $path = $file->store('venues/portfolio', 'public');
+                $portfolio[] = Storage::url($path);
             }
         }
         $venue->portfolio = $portfolio;

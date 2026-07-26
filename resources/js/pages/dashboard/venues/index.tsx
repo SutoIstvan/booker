@@ -164,15 +164,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-VenuesIndex.layout = (page: React.ReactNode) => {
-    // Note: Inertia uses page.props to bind custom data to layouts.
-    // The Wayfinder / custom loader wraps this page with AppLayout dynamically.
-    // We add the layout property so it gets recognized by our Layout loader if necessary.
-    return page;
-};
-
 // Also export layout config property for template resolver
-// @ts-ignore
 VenuesIndex.layout = {
     breadcrumbs,
 };
