@@ -18,10 +18,10 @@ export default function Welcome() {
                 <main className="min-h-screen bg-zinc-950 text-white selection:bg-zinc-800 selection:text-white">
                     <Navbar />
                     <Hero />
-                    <LogoMarquee />
-                    <BentoGrid />
+                    {/* <LogoMarquee /> */}
+                    {/* <BentoGrid /> */}
                     <Booking />
-                    <Pricing />
+                    {/* <Pricing /> */}
                     <FinalCTA />
                     <Footer />
                 </main>

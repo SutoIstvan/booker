@@ -47,4 +47,12 @@ class User extends Authenticatable implements PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    /**
+     * Get the venues owned by the user.
+     */
+    public function venues(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Venue::class);
+    }
 }

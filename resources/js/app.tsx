@@ -12,14 +12,16 @@ createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {
         switch (true) {
-            case name === 'welcome':
+            case name === 'welcome' || name === 'venue-page' || name.startsWith('booking/'):
                 return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];
-            default:
+            case name === 'dashboard' || name.startsWith('dashboard/'):
                 return AppLayout;
+            default:
+                return null;
         }
     },
     strictMode: true,
