@@ -174,8 +174,8 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                             className="space-y-6"
                         >
                             <div className="text-left">
-                                <h3 className="text-xl font-bold text-zinc-900 mb-1">Select Service</h3>
-                                <p className="text-zinc-500 text-xs">Choose the treatment or service you would like to book.</p>
+                                <h3 className="font-serif text-2xl font-semibold text-foreground mb-1">Select Service</h3>
+                                <p className="text-muted-foreground text-sm">Choose the treatment or service you would like to book.</p>
                             </div>
 
                             <div className="grid gap-3.5 max-h-[380px] overflow-y-auto pr-1">
@@ -183,26 +183,26 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                     <button
                                         key={service.id}
                                         onClick={() => handleServiceSelect(service)}
-                                        className="text-left w-full p-4 rounded-xl border border-zinc-205 bg-white hover:border-zinc-300 hover:bg-zinc-50/50 transition-all duration-300 group flex items-center justify-between gap-4 shadow-sm"
+                                        className="text-left w-full p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-secondary/20 transition-all duration-300 group flex items-center justify-between gap-4 shadow-sm"
                                     >
                                         <div className="space-y-1">
-                                            <h4 className="font-bold text-zinc-900 text-base group-hover:text-zinc-950 transition-colors">
+                                            <h4 className="font-serif text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                                                 {service.name}
                                             </h4>
                                             {service.description && (
-                                                <p className="text-zinc-500 text-xs line-clamp-1">{service.description}</p>
+                                                <p className="text-muted-foreground text-sm line-clamp-1">{service.description}</p>
                                             )}
-                                            <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-semibold pt-1">
-                                                <Clock className="w-3.5 h-3.5" />
+                                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium pt-1">
+                                                <Clock className="w-3.5 h-3.5 text-primary" />
                                                 <span>{service.duration_minutes} min</span>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-base font-extrabold text-zinc-900">
+                                            <span className="text-lg font-semibold text-foreground">
                                                 ${(service.price / 100).toFixed(2)}
                                             </span>
-                                            <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mt-0.5 group-hover:text-zinc-650 flex items-center gap-0.5 justify-end">
-                                                Select <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                                            <div className="text-xs text-primary font-medium uppercase tracking-wider mt-1 group-hover:opacity-80 flex items-center gap-0.5 justify-end">
+                                                Select <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                                             </div>
                                         </div>
                                     </button>
@@ -229,54 +229,56 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                             </button>
 
                             <div>
-                                <h3 className="text-xl font-bold text-zinc-900 mb-1">Select Professional</h3>
-                                <p className="text-zinc-500 text-xs">Pick an available specialist or select any available.</p>
+                                <h3 className="font-serif text-2xl font-semibold text-foreground mb-1">Select Professional</h3>
+                                <p className="text-muted-foreground text-sm">Pick an available specialist or select any available.</p>
                             </div>
 
                             <div className="grid gap-3 max-h-[380px] overflow-y-auto">
                                 {/* Any Available Option */}
                                 <button
                                     onClick={() => handleStaffSelect(null)}
-                                    style={selectedStaff === null ? { borderColor: pColor, backgroundColor: pColor + '08' } : {}}
-                                    className={`text-left w-full p-4 rounded-xl border-2 transition-all duration-300 flex items-center justify-between shadow-sm ${
-                                        selectedStaff === null ? "" : "border-zinc-200/80 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
+                                    className={`text-left w-full p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between shadow-sm ${
+                                        selectedStaff === null
+                                            ? "border-primary bg-primary/10 text-foreground"
+                                            : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary/20"
                                     }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-650">
+                                        <div className="h-10 w-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary">
                                             *
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-zinc-900">Any Available</h4>
-                                            <p className="text-zinc-500 text-xs">Selects the first free provider</p>
+                                            <h4 className="font-serif text-base font-semibold text-foreground">Any Available</h4>
+                                            <p className="text-muted-foreground text-xs">Selects the first free provider</p>
                                         </div>
                                     </div>
-                                    <ArrowRight className="w-4 h-4 text-zinc-400" />
+                                    <ArrowRight className="w-4 h-4 text-primary" />
                                 </button>
 
                                 {eligibleStaff.map((member) => (
                                     <button
                                         key={member.id}
                                         onClick={() => handleStaffSelect(member)}
-                                        style={selectedStaff?.id === member.id ? { borderColor: pColor, backgroundColor: pColor + '08' } : {}}
-                                        className={`text-left w-full p-4 rounded-xl border-2 transition-all duration-300 flex items-center justify-between shadow-sm ${
-                                            selectedStaff?.id === member.id ? "" : "border-zinc-200/80 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
+                                        className={`text-left w-full p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between shadow-sm ${
+                                            selectedStaff?.id === member.id
+                                                ? "border-primary bg-primary/10 text-foreground"
+                                                : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary/20"
                                         }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             {member.avatar ? (
-                                                <img src={member.avatar} alt={member.name} className="h-10 w-10 rounded-full object-cover border border-zinc-200" />
+                                                <img src={member.avatar} alt={member.name} className="h-10 w-10 rounded-full object-cover border border-border" />
                                             ) : (
-                                                <div className="h-10 w-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-650">
+                                                <div className="h-10 w-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-xs">
                                                     {member.name.substring(0, 2).toUpperCase()}
                                                 </div>
                                             )}
                                             <div>
-                                                <h4 className="font-bold text-zinc-900">{member.name}</h4>
-                                                <p className="text-zinc-505 text-xs">{member.position || 'Specialist'}</p>
+                                                <h4 className="font-serif text-base font-semibold text-foreground">{member.name}</h4>
+                                                <p className="text-muted-foreground text-xs">{member.position || 'Specialist'}</p>
                                             </div>
                                         </div>
-                                        <ArrowRight className="w-4 h-4 text-zinc-400" />
+                                        <ArrowRight className="w-4 h-4 text-primary" />
                                     </button>
                                 ))}
                             </div>
@@ -302,34 +304,27 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
 
                             {/* Date horizontal selection */}
                             <div className="flex flex-col">
-                                <h4 className="text-zinc-850 font-bold text-sm mb-3 flex items-center gap-2">
-                                    <CalendarIcon className="w-4 h-4 text-zinc-500" />
+                                <h4 className="font-serif text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <CalendarIcon className="w-4 h-4 text-primary" />
                                     Select Date
                                 </h4>
                                 
-                                <div className="flex gap-2.5 overflow-x-auto pb-3 pt-1 scrollbar-none w-full">
+                                <div className="flex gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none w-full">
                                     {dates.map((date) => {
                                         const isSelected = selectedDate && isSameDay(selectedDate, date);
                                         return (
                                             <button
                                                 key={date.toISOString()}
                                                 onClick={() => handleDateChange(date)}
-                                                style={isSelected ? { backgroundColor: pColor, borderColor: pColor } : {}}
-                                                className={`flex flex-col items-center justify-center min-w-[68px] py-3.5 rounded-xl border transition-all duration-300 shadow-sm ${
+                                                className={`flex flex-col items-center justify-center min-w-16 shrink-0 snap-start gap-1 rounded-xl border px-3 py-3 transition-colors ${
                                                     isSelected
-                                                        ? "text-white shadow-md"
-                                                        : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50"
+                                                        ? "border-primary bg-primary text-primary-foreground shadow-md"
+                                                        : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary/10"
                                                 }`}
                                             >
-                                                <span className="text-[9px] uppercase font-bold tracking-wider opacity-60">
-                                                    {format(date, "EEE")}
-                                                </span>
-                                                <span className="text-base font-extrabold mt-0.5 leading-none">
-                                                    {format(date, "d")}
-                                                </span>
-                                                <span className="text-[8px] uppercase tracking-wider opacity-60 mt-0.5">
-                                                    {format(date, "MMM")}
-                                                </span>
+                                                <span className="text-xs">{format(date, "EEE")}</span>
+                                                <span className="text-lg font-semibold">{format(date, "d")}</span>
+                                                <span className="text-xs">{format(date, "MMM")}</span>
                                             </button>
                                         );
                                     })}
@@ -340,30 +335,29 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
 
                             {/* Time Slots grid */}
                             <div className="flex flex-col">
-                                <h4 className="text-zinc-850 font-bold text-sm mb-3 flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-zinc-500" />
+                                <h4 className="font-serif text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-primary" />
                                     Select Time
                                 </h4>
 
                                 {loadingSlots ? (
                                     <div className="flex flex-col items-center justify-center py-10 text-center">
-                                        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin mb-2" />
-                                        <p className="text-zinc-500 text-xs">Finding available slots...</p>
+                                        <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
+                                        <p className="text-muted-foreground text-sm">Finding available slots...</p>
                                     </div>
                                 ) : slots.length > 0 ? (
                                     <div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[180px] overflow-y-auto pr-1">
+                                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 max-h-[180px] overflow-y-auto pr-1">
                                             {slots.map((slot) => {
                                                 const isSelected = selectedTimeSlot?.time_24 === slot.time_24;
                                                 return (
                                                     <button
                                                         key={slot.time_24}
                                                         onClick={() => handleTimeSelect(slot)}
-                                                        style={isSelected ? { backgroundColor: pColor, borderColor: pColor } : {}}
-                                                        className={`py-2.5 px-3 text-xs font-semibold rounded-xl border transition-all duration-300 shadow-sm ${
+                                                        className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
                                                             isSelected
-                                                                ? "text-white shadow-md"
-                                                                : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50"
+                                                                ? "border-primary bg-primary text-primary-foreground shadow-md"
+                                                                : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary/10"
                                                         }`}
                                                     >
                                                         {slot.time_12}
@@ -372,17 +366,16 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                             })}
                                         </div>
 
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-5 border-t border-zinc-200/80">
-                                            <span className="text-[10px] text-zinc-500 bg-zinc-100 py-1.5 px-2.5 rounded-lg border border-zinc-200 w-fit flex items-center gap-1.5">
-                                                <Globe className="w-3.5 h-3.5 text-zinc-400" />
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-5 border-t border-border/60">
+                                            <span className="text-xs text-muted-foreground bg-secondary/50 py-1.5 px-3 rounded-lg border border-border w-fit flex items-center gap-1.5">
+                                                <Globe className="w-3.5 h-3.5 text-primary" />
                                                 Timezone: {timezone}
                                             </span>
 
                                             <Button
                                                 onClick={() => setStep("details")}
                                                 disabled={!selectedTimeSlot}
-                                                style={{ backgroundColor: selectedTimeSlot ? pColor : undefined }}
-                                                className="shimmer-btn text-white rounded-xl h-11 px-6 text-xs font-semibold flex items-center justify-center gap-1.5"
+                                                className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                                             >
                                                 Confirm Details
                                                 <ArrowRight className="w-4 h-4" />
@@ -417,24 +410,24 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                             </button>
 
                             {/* Summary card */}
-                            <div className="mb-6 p-4 bg-white border border-zinc-200 rounded-xl flex items-center justify-between text-left shadow-sm">
+                            <div className="mb-6 p-4 bg-card border border-border rounded-xl flex items-center justify-between text-left shadow-sm">
                                 <div className="space-y-1">
-                                    <span className="text-zinc-400 text-[10px] uppercase font-bold tracking-wider">Your selection</span>
-                                    <p className="text-zinc-900 font-extrabold text-sm">
+                                    <span className="text-muted-foreground text-[10px] uppercase font-bold tracking-wider">Your selection</span>
+                                    <p className="font-serif text-lg font-semibold text-foreground">
                                         {selectedService.name} (${(selectedService.price/100).toFixed(2)})
                                     </p>
-                                    <p className="text-zinc-505 text-xs">
+                                    <p className="text-muted-foreground text-xs font-medium">
                                         {format(selectedDate, "MMMM d, yyyy")} at {selectedTimeSlot.time_12} with {selectedStaff ? selectedStaff.name : "Any Provider"}
                                     </p>
                                 </div>
-                                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center border border-zinc-200 text-zinc-500 shrink-0 shadow-sm">
+                                <div className="w-9 h-9 bg-secondary/50 rounded-lg flex items-center justify-center border border-border text-primary shrink-0 shadow-sm">
                                     <Clock className="w-4 h-4" />
                                 </div>
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-4 text-left">
                                 {Object.keys(form.errors).length > 0 && (
-                                    <div className="p-3 mb-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-650 text-xs space-y-1">
+                                    <div className="p-3 mb-2 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs space-y-1">
                                         <p className="font-bold">Could not complete booking:</p>
                                         <ul className="list-disc pl-4 space-y-0.5">
                                             {Object.entries(form.errors).map(([key, err]) => (
@@ -445,7 +438,7 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                 )}
                                 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="client_name" className="text-zinc-700 text-xs font-semibold">Your Full Name</Label>
+                                    <Label htmlFor="client_name" className="text-foreground text-xs font-semibold">Your Full Name</Label>
                                     <div className="relative">
                                         <Input
                                             id="client_name"
@@ -453,15 +446,15 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                             value={form.data.client_name}
                                             onChange={(e) => form.setData("client_name", e.target.value)}
                                             placeholder="Alex Mercer"
-                                            className="pl-9 h-10 border-zinc-200 bg-white text-zinc-900 rounded-xl text-xs shadow-sm focus:border-zinc-400"
+                                            className="pl-9 h-11 border-border bg-card text-foreground rounded-xl text-sm shadow-sm focus-visible:border-primary focus-visible:ring-primary/20"
                                         />
-                                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     </div>
                                     <InputError message={form.errors.client_name} />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="client_email" className="text-zinc-700 text-xs font-semibold">Email Address</Label>
+                                    <Label htmlFor="client_email" className="text-foreground text-xs font-semibold">Email Address</Label>
                                     <div className="relative">
                                         <Input
                                             id="client_email"
@@ -470,15 +463,15 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                             value={form.data.client_email}
                                             onChange={(e) => form.setData("client_email", e.target.value)}
                                             placeholder="alex@example.com"
-                                            className="pl-9 h-10 border-zinc-200 bg-white text-zinc-900 rounded-xl text-xs shadow-sm focus:border-zinc-400"
+                                            className="pl-9 h-11 border-border bg-card text-foreground rounded-xl text-sm shadow-sm focus-visible:border-primary focus-visible:ring-primary/20"
                                         />
-                                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     </div>
                                     <InputError message={form.errors.client_email} />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="client_phone" className="text-zinc-700 text-xs font-semibold">Phone Number (Optional)</Label>
+                                    <Label htmlFor="client_phone" className="text-foreground text-xs font-semibold">Phone Number (Optional)</Label>
                                     <div className="relative">
                                         <Input
                                             id="client_phone"
@@ -486,22 +479,22 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                             value={form.data.client_phone}
                                             onChange={(e) => form.setData("client_phone", e.target.value)}
                                             placeholder="+1 (555) 000-0000"
-                                            className="pl-9 h-10 border-zinc-200 bg-white text-zinc-900 rounded-xl text-xs shadow-sm focus:border-zinc-400"
+                                            className="pl-9 h-11 border-border bg-card text-foreground rounded-xl text-sm shadow-sm focus-visible:border-primary focus-visible:ring-primary/20"
                                         />
-                                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     </div>
                                     <InputError message={form.errors.client_phone} />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="notes" className="text-zinc-700 text-xs font-semibold">Special Instructions (Optional)</Label>
+                                    <Label htmlFor="notes" className="text-foreground text-xs font-semibold">Special Instructions (Optional)</Label>
                                     <Textarea
                                         id="notes"
                                         rows={2}
                                         value={form.data.notes}
                                         onChange={(e) => form.setData("notes", e.target.value)}
                                         placeholder="Any notes or requests for the specialist..."
-                                        className="border-zinc-200 bg-white text-zinc-900 rounded-xl text-xs shadow-sm focus:border-zinc-400"
+                                        className="border-border bg-card text-foreground rounded-xl text-sm shadow-sm focus-visible:border-primary focus-visible:ring-primary/20"
                                     />
                                     <InputError message={form.errors.notes} />
                                 </div>
@@ -509,8 +502,7 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                 <Button
                                     type="submit"
                                     disabled={form.processing || !form.data.client_name || !form.data.client_email}
-                                    style={{ backgroundColor: pColor }}
-                                    className="w-full text-white rounded-xl h-11 text-xs font-semibold flex items-center justify-center gap-1.5 mt-6 shadow-sm"
+                                    className="w-full inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground px-8 py-3.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 mt-6 shadow-sm"
                                 >
                                     {form.processing ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -533,40 +525,40 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                             animate={{ opacity: 1, scale: 1 }}
                             className="max-w-md mx-auto text-center py-6"
                         >
-                            <div className="w-14 h-14 bg-emerald-100 border border-emerald-300 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-sm shadow-emerald-500/10">
+                            <div className="w-14 h-14 bg-primary/10 border border-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-5 shadow-sm shadow-primary/10">
                                 <CheckCircle2 className="w-7 h-7" />
                             </div>
 
-                            <h3 className="text-2xl font-bold text-zinc-900 mb-1.5">Appointment Booked!</h3>
-                            <p className="text-zinc-500 text-xs mb-6">
-                                We've sent a confirmation email with details to <span className="text-zinc-700 font-semibold">{bookingSuccess.client_email}</span>.
+                            <h3 className="font-serif text-2xl font-semibold text-foreground mb-1.5">Запись подтверждена!</h3>
+                            <p className="text-muted-foreground text-sm mb-6">
+                                Мы отправили подтверждение на электронную почту <span className="text-foreground font-medium">{bookingSuccess.client_email}</span>.
                             </p>
 
-                            <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 mb-6 space-y-3 text-left max-w-sm mx-auto shadow-inner text-xs">
+                            <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3.5 text-left max-w-sm mx-auto shadow-sm text-sm">
                                 <div>
-                                    <span className="text-[10px] text-zinc-400 block uppercase tracking-wider font-bold">Venue</span>
-                                    <span className="font-semibold text-zinc-700">{venue.name}</span>
+                                    <span className="text-[10px] text-muted-foreground block uppercase tracking-wider font-bold">Салон</span>
+                                    <span className="font-serif text-base font-semibold text-foreground">{venue.name}</span>
                                 </div>
                                 <div>
-                                    <span className="text-[10px] text-zinc-400 block uppercase tracking-wider font-bold">Service</span>
-                                    <span className="font-semibold text-zinc-700">{bookingSuccess.service_name}</span>
+                                    <span className="text-[10px] text-muted-foreground block uppercase tracking-wider font-bold">Услуга</span>
+                                    <span className="font-serif text-base font-semibold text-foreground">{bookingSuccess.service_name}</span>
                                 </div>
                                 <div>
-                                    <span className="text-[10px] text-zinc-400 block uppercase tracking-wider font-bold">Date & Time</span>
-                                    <span className="font-semibold text-zinc-700">
+                                    <span className="text-[10px] text-muted-foreground block uppercase tracking-wider font-bold">Дата и время</span>
+                                    <span className="font-semibold text-foreground">
                                         {format(new Date(bookingSuccess.booking_date), "EEEE, MMMM dd, yyyy")}
                                     </span>
-                                    <span className="text-zinc-500 block mt-0.5">
+                                    <span className="text-muted-foreground block mt-0.5">
                                         {bookingSuccess.start_time} ({timezone})
                                     </span>
                                 </div>
                                 <div>
-                                    <span className="text-[10px] text-zinc-400 block uppercase tracking-wider font-bold">Provider</span>
-                                    <span className="font-semibold text-zinc-700">{bookingSuccess.staff_name}</span>
+                                    <span className="text-[10px] text-muted-foreground block uppercase tracking-wider font-bold">Специалист</span>
+                                    <span className="font-semibold text-foreground">{bookingSuccess.staff_name}</span>
                                 </div>
                             </div>
 
-                            <Button
+                            <button
                                 onClick={() => {
                                     setStep("service");
                                     setSelectedService(null);
@@ -574,10 +566,10 @@ export default function VenueBookingWidget({ venue, services, staffMembers }: Pr
                                     setSelectedTimeSlot(null);
                                     form.reset();
                                 }}
-                                className="rounded-xl px-5 h-10 text-xs font-semibold border border-zinc-200 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 bg-transparent shadow-sm"
+                                className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
                             >
-                                Book Another Service
-                            </Button>
+                                Записаться на другую услугу
+                            </button>
                         </motion.div>
                     )}
                 </AnimatePresence>

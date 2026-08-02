@@ -1,135 +1,72 @@
-"use client"
-
-import { motion } from "framer-motion"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-
-const avatars = [
-  "/professional-headshot-1.png",
-  "/professional-headshot-2.png",
-  "/professional-headshot-3.png",
-  "/professional-headshot-4.png",
-  "/professional-headshot-5.png",
-]
-
-const textRevealVariants = {
-  hidden: { y: "100%" },
-  visible: (i: number) => ({
-    y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.22, 1, 0.36, 1],
-      delay: i * 0.1,
-    },
-  }),
-}
+import { Clock, MapPin, Star } from 'lucide-react'
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-16 overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 pointer-events-none" />
-
-      {/* Subtle radial glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-zinc-800/20 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative z-10 max-w-5xl mx-auto text-center">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 mb-8"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-glow" />
-          <span className="text-sm text-zinc-400">Now in Public Beta</span>
-        </motion.div>
-
-        {/* Headline with text mask animation */}
-        <h1
-          className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6"
-          style={{ fontFamily: "var(--font-cal-sans), sans-serif" }}
-        >
-          <span className="block overflow-hidden">
-            <motion.span className="block" variants={textRevealVariants} initial="hidden" animate="visible" custom={0}>
-              Ship faster.
-            </motion.span>
+    <section className="relative overflow-hidden">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:gap-12 md:px-6 md:py-24">
+        <div className="flex flex-col gap-6">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent/10 px-4 py-1.5 text-sm font-medium text-accent">
+            <Star className="h-4 w-4 fill-accent" aria-hidden="true" />
+            Massage & SPA Salon
           </span>
-          <span className="block overflow-hidden">
-            <motion.span
-              className="block text-zinc-500"
-              variants={textRevealVariants}
-              initial="hidden"
-              animate="visible"
-              custom={1}
-            >
-              Scale smarter.
-            </motion.span>
-          </span>
-        </h1>
 
-        {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed"
-        >
-          The modern platform for teams who ship fast. Built for scale, designed for speed. Everything you need to
-          build, deploy, and grow.
-        </motion.p>
+          <h1 className="text-balance font-serif text-4xl font-semibold leading-tight text-foreground md:text-6xl">
+            Bring lightness to your body and stillness to your mind
+          </h1>
 
-        {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
-        >
-          <Button
-            size="lg"
-            className="shimmer-btn bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-8 h-12 text-base font-medium shadow-lg shadow-white/10"
-          >
-            Start Building
-            <ArrowRight className="ml-2 w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className="rounded-full px-8 h-12 text-base font-medium border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white hover:border-zinc-700 bg-transparent"
-          >
-            View Demo
-          </Button>
-        </motion.div>
-
-        {/* Social Proof */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <div className="flex items-center -space-x-3">
-            {avatars.map((avatar, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.5, x: -20 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
-                className="relative"
-              >
-                <img
-                  src={avatar || "/placeholder.svg"}
-                  alt=""
-                  className="w-10 h-10 rounded-full border-2 border-zinc-950 object-cover"
-                />
-              </motion.div>
-            ))}
-          </div>
-          <p className="text-sm text-zinc-500">
-            Trusted by <span className="text-zinc-300 font-medium">2,000+</span> teams worldwide
+          <p className="max-w-md text-pretty leading-relaxed text-muted-foreground">
+            Personalized massage and SPA programs in an atmosphere of calm.
+            Experienced therapists, natural oils and easy online booking for any
+            available time.
           </p>
-        </motion.div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="#booking"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Book a time
+            </a>
+            <a
+              href="#services"
+              className="inline-flex items-center justify-center rounded-full border border-border bg-card px-7 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+            >
+              View services
+            </a>
+          </div>
+
+          <div className="mt-2 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
+              Open daily 10:00–22:00
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
+              12 Quiet Street, Downtown
+            </span>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="overflow-hidden rounded-3xl border border-border/60 shadow-sm">
+            <img
+              src="/images/hero-massage.png"
+              alt="Cozy, bright massage room with soft natural light"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="absolute -bottom-5 left-5 flex items-center gap-3 rounded-2xl border border-border/60 bg-card px-5 py-4 shadow-sm">
+            <div className="flex items-center gap-1 text-accent">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-4 w-4 fill-accent" aria-hidden="true" />
+              ))}
+            </div>
+            <div className="text-sm">
+              <p className="font-semibold text-foreground">4.9 out of 5</p>
+              <p className="text-muted-foreground">800+ reviews</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )

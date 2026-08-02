@@ -39,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'gallery',
     'portfolio',
     'primary_color',
+    'font',
     'is_active',
 ])]
 class Venue extends Model

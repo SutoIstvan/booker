@@ -1,24 +1,23 @@
-import { SmoothScroll } from "@/components/smooth-scroll"
-import { Navbar } from "@/components/navbar"
-import { Hero } from "@/components/hero"
-import { LogoMarquee } from "@/components/logo-marquee"
-import { BentoGrid } from "@/components/bento-grid"
-import { Pricing } from "@/components/pricing"
-import { FinalCTA } from "@/components/final-cta"
-import { Footer } from "@/components/footer"
+import { SiteHeader } from '@/components/site-header'
+import { Hero } from '@/components/hero'
+import { ServicesSection } from '@/components/services-section'
+import { BookingSection } from '@/components/booking-section'
+import { AboutSection } from '@/components/about-section'
+import { TestimonialsSection } from '@/components/testimonials-section'
+import { SiteFooter } from '@/components/site-footer'
 
-export default function Home() {
+export default function Page() {
   return (
-    <SmoothScroll>
-      <main className="min-h-screen bg-zinc-950">
-        <Navbar />
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main>
         <Hero />
-        <LogoMarquee />
-        <BentoGrid />
-        <Pricing />
-        <FinalCTA />
-        <Footer />
+        <ServicesSection />
+        <BookingSection />
+        <AboutSection />
+        <TestimonialsSection />
       </main>
-    </SmoothScroll>
+      <SiteFooter />
+    </div>
   )
 }

@@ -1,31 +1,31 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Manrope } from "next/font/google"
-import localFont from "next/font/local"
-import { Analytics } from "@vercel/analytics/next"
-import "./globals.css"
+import { Analytics } from '@vercel/analytics/next'
+import type { Metadata, Viewport } from 'next'
+import { Inter, Cormorant_Garamond } from 'next/font/google'
+import './globals.css'
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-inter',
+  display: 'swap',
 })
 
-const calSans = localFont({
-  src: "./fonts/CalSans-SemiBold.woff2",
-  variable: "--font-cal-sans",
-  display: "swap",
-})
-
-const instrumentSans = localFont({
-  src: "./fonts/InstrumentSans-Variable.woff2",
-  variable: "--font-instrument-sans",
-  display: "swap",
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-cormorant',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: "Apex - Enterprise SaaS Platform",
-  description: "The modern platform for teams who ship fast. Built for scale, designed for speed.",
-    generator: 'v0.app'
+  title: 'Stillness — Massage & SPA Salon',
+  description:
+    'Stillness massage salon: relaxing, sports and therapeutic massage, aromatherapy. Book your preferred time online.',
+  generator: 'v0.app',
+}
+
+export const viewport: Viewport = {
+  colorScheme: 'light',
+  themeColor: '#ffffff',
 }
 
 export default function RootLayout({
@@ -34,11 +34,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${manrope.variable} ${calSans.variable} ${instrumentSans.variable} font-sans antialiased`}>
-        <div className="noise-overlay" aria-hidden="true" />
+    <html
+      lang="en"
+      className={`light ${inter.variable} ${cormorant.variable} bg-background`}
+    >
+      <body className="font-sans antialiased">
         {children}
-        <Analytics />
+        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

@@ -40,6 +40,7 @@ export default function VenueCreate() {
         address: '',
         city: '',
         primary_color: '#18181b',
+        font: 'sans',
     });
 
     // Automatically generate slug from name
@@ -232,6 +233,36 @@ export default function VenueCreate() {
                                     </div>
                                 </div>
                                 <InputError message={errors.primary_color} />
+                            </div>
+
+                            <div className="space-y-3 border-t border-neutral-100 dark:border-neutral-800 pt-5">
+                                <div>
+                                    <Label className="text-sm font-semibold">Font Style</Label>
+                                    <span className="text-xs text-neutral-400 block mt-0.5">
+                                        Choose the typography style for your public venue booking page.
+                                    </span>
+                                </div>
+                                <div className="flex flex-wrap gap-2.5">
+                                    {[
+                                        { id: 'sans', name: 'Inter (Modern Sans)' },
+                                        { id: 'serif', name: 'Cormorant Garamond (Classic Serif)' },
+                                        { id: 'mono', name: 'Space Mono (Technical)' },
+                                    ].map((f) => (
+                                        <button
+                                            key={f.id}
+                                            type="button"
+                                            onClick={() => setData('font', f.id)}
+                                            className={`h-9 items-center px-4 flex rounded-lg text-xs font-semibold border transition-all duration-200 ${
+                                                data.font === f.id
+                                                    ? 'border-neutral-950 dark:border-white ring-2 ring-neutral-400 dark:ring-neutral-700'
+                                                    : 'border-neutral-200 dark:border-neutral-800 opacity-80 hover:opacity-100'
+                                            }`}
+                                        >
+                                            {f.name}
+                                        </button>
+                                    ))}
+                                </div>
+                                <InputError message={errors.font} />
                             </div>
                         </CardContent>
                     </Card>

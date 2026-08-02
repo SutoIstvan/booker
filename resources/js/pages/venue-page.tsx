@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
-import { Building2, Phone, MapPin, Check, Info, ShieldCheck, Image, Share2, Heart, X, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import {
+    Clock, MapPin, Star, Phone, Share2, Heart, Image, Mail,
+    Leaf, HandHeart, ShieldCheck, Quote, ChevronLeft, ChevronRight, X, Flower2, Building2, Check, Info
+} from 'lucide-react';
 import VenueBookingWidget from '@/components/venue-booking-widget';
 import { toast } from 'sonner';
 
@@ -42,6 +45,7 @@ interface Venue {
     gallery: string[] | null;
     portfolio: string[] | null;
     primary_color: string;
+    font: string;
     services: Service[];
     staff_members: StaffMember[];
     working_hours: WorkingHour[];
@@ -64,8 +68,6 @@ const DAY_NAMES = [
 const DISPLAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export default function PublicVenuePage({ venue }: Props) {
-    const pColor = venue.primary_color || '#18181b';
-
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [currentImgIdx, setCurrentImgIdx] = useState(0);
     const [isFavorite, setIsFavorite] = useState(false);
@@ -150,32 +152,53 @@ export default function PublicVenuePage({ venue }: Props) {
         }
     };
 
-    // Split unique images into columns (max 5 columns, max 2 rows/images per column, up to 10 images total)
-    const colsCount = Math.min(5, uniqueImages.length);
-    const columns: string[][] = Array.from({ length: colsCount }, () => []);
-    uniqueImages.slice(0, colsCount * 2).forEach((img, idx) => {
-        columns[idx % colsCount].push(img);
-    });
-
-    const getGridColsClass = () => {
-        if (colsCount === 1) return 'grid-cols-1';
-        if (colsCount === 2) return 'grid-cols-2';
-        if (colsCount === 3) return 'grid-cols-2 sm:grid-cols-3';
-        if (colsCount === 4) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4';
-        return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5';
+    // Get today's working hours description
+    const getTodayWorkingHours = () => {
+        const todayDayIndex = new Date().getDay();
+        const hrs = venue.working_hours.find(h => h.day_of_week === todayDayIndex);
+        if (!hrs) return 'Closed today';
+        return hrs.is_day_off ? 'Closed today' : `Open today ${formatTime(hrs.open_time)}–${formatTime(hrs.close_time)}`;
     };
 
-    // Deterministic height classes mapping for a neat masonry look
-    const getImgHeightClass = (colIdx: number, imgIdx: number) => {
-        const heights = [
-            ['h-24 sm:h-28', 'h-36 sm:h-44', 'h-28 sm:h-36'],
-            ['h-40 sm:h-48', 'h-20 sm:h-28', 'h-32 sm:h-40'],
-            ['h-28 sm:h-36', 'h-32 sm:h-40', 'h-40 sm:h-48'],
-            ['h-36 sm:h-44', 'h-28 sm:h-36', 'h-20 sm:h-28'],
-            ['h-32 sm:h-40', 'h-40 sm:h-48', 'h-24 sm:h-32'],
-        ];
-        return heights[colIdx % 5][imgIdx % 3];
+    const testimonials = [
+        {
+            name: 'Ольга К.',
+            text: 'Лучший расслабляющий массаж в городе. Уходила как будто заново родилась. Атмосфера невероятно спокойная.',
+        },
+        {
+            name: 'Дмитрий В.',
+            text: 'Хожу на спортивный массаж после тренировок. Мастер профессиональный, спина перестала болеть. Рекомендую!',
+        },
+        {
+            name: 'Мария С.',
+            text: 'Ароматерапия — это что-то волшебное. Онлайн-запись удобная, всегда подтверждают заранее. Мой любимый салон.',
+        },
+    ];
+
+    const features = [
+        {
+            icon: HandHeart,
+            title: 'Опытные мастера',
+            text: 'Сертифицированные специалисты со стажем от 5 лет и индивидуальным подходом.',
+        },
+        {
+            icon: Leaf,
+            title: 'Натуральные масла',
+            text: 'Только органическая косметика и эфирные масла премиального качества.',
+        },
+        {
+            icon: ShieldCheck,
+            title: 'Чистота и комфорт',
+            text: 'Стерильность, свежий текстиль к каждому сеансу и уютная атмосфера покоя.',
+        },
+    ];
+
+    const fontMapping: Record<string, string> = {
+        sans: "'Inter', ui-sans-serif, system-ui, sans-serif",
+        serif: "'Cormorant Garamond', ui-serif, Georgia, serif",
+        mono: "'Space Mono', ui-monospace, SFMono-Regular, Consolas, monospace",
     };
+    const selectedFont = fontMapping[venue.font] || fontMapping.sans;
 
     return (
         <>
@@ -183,254 +206,482 @@ export default function PublicVenuePage({ venue }: Props) {
                 <meta name="description" content={venue.description || `Book your appointment online at ${venue.name}.`} />
             </Head>
 
-            <main className="min-h-screen bg-zinc-50/70 text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 pb-16">
-                {/* Visual Ambient Glows */}
-                <div className="absolute top-0 inset-x-0 h-[500px] bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.015),transparent)] pointer-events-none" />
-                <div
-                    className="absolute top-24 left-1/4 w-[300px] h-[300px] rounded-full blur-3xl pointer-events-none opacity-[0.04]"
-                    style={{ backgroundColor: pColor }}
-                />
-
-                {/* Banner / Cover with Masonry Background */}
-                <div className="relative h-72 sm:h-96 w-full overflow-hidden bg-zinc-100 border-b border-zinc-200/80">
-                    {uniqueImages.length > 0 ? (
-                        /* Masonry Image Grid */
-                        <div className="absolute inset-0 w-full h-full overflow-hidden select-none">
-                            <div className={`grid ${getGridColsClass()} gap-2.5 p-2.5 h-full opacity-100 transition-opacity duration-300`}>
-                                {columns.map((colImages, colIdx) => (
-                                    <div
-                                        key={colIdx}
-                                        className={`flex flex-col gap-2.5 ${colIdx === 2 ? 'hidden sm:flex' :
-                                            colIdx === 3 ? 'hidden md:flex' :
-                                                colIdx === 4 ? 'hidden lg:flex' : ''
-                                            }`}
-                                    >
-                                        {colImages.map((img, imgIdx) => {
-                                            const originalIdx = uniqueImages.indexOf(img);
-                                            return (
-                                                <div
-                                                    key={imgIdx}
-                                                    onClick={() => openLightbox(originalIdx)}
-                                                    className={`w-full overflow-hidden rounded-xl border border-zinc-200/30 bg-zinc-50 shadow-inner cursor-pointer ${getImgHeightClass(colIdx, imgIdx)}`}
-                                                >
-                                                    <img
-                                                        src={img}
-                                                        alt=""
-                                                        className="w-full h-full object-cover transform hover:scale-102 transition-transform duration-500 ease-out"
-                                                        loading="lazy"
-                                                    />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        /* Default ambient background when no images exist */
-                        <div
-                            className="h-full w-full opacity-40 bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200"
-                            style={{ backgroundImage: `radial-gradient(circle at 50% 50%, ${pColor}1A, transparent)` }}
-                        />
-                    )}
-
-                    {/* Radial Brand Glow Overlay for Bespoke Brand Association */}
-                    <div
-                        className="absolute inset-0 pointer-events-none opacity-[0.07]"
-                        style={{
-                            backgroundImage: `radial-gradient(circle at 50% 30%, ${pColor}, transparent)`,
-                        }}
-                    />
-
-                    {/* Clean Gradient fade at bottom to integrate seamlessly with main content and improve text legibility */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-50 via-zinc-70/100 to-transparent pointer-events-none" />
-
-                    {/* Banner Contents: Logo, Title, and Category */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl px-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4 z-10">
-                        <div className="flex items-center gap-4">
+            <div 
+                className="theme-salon min-h-screen bg-background text-foreground antialiased selection:bg-primary/20"
+                style={{
+                    '--primary': venue.primary_color || 'oklch(0.52 0.055 145)',
+                    '--ring': venue.primary_color || 'oklch(0.52 0.055 145)',
+                    '--font-sans': selectedFont,
+                    '--font-serif': selectedFont,
+                } as React.CSSProperties}
+            >
+                {/* Site Header */}
+                <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+                    <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 md:px-6">
+                        <a href="#" className="flex items-center gap-2.5">
                             {venue.logo ? (
                                 <img
                                     src={venue.logo}
                                     alt={venue.name}
-                                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover bg-white border border-zinc-200/80 p-1 shadow-sm"
+                                    className="h-9 w-9 rounded-xl object-cover bg-card border border-border p-0.5 shadow-sm"
                                 />
                             ) : (
-                                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center font-extrabold text-zinc-700 shrink-0 text-2xl shadow-sm">
-                                    {venue.name.charAt(0).toUpperCase()}
-                                </div>
-                            )}
-                            <div className="text-left space-y-1">
-                                <span
-                                    className="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider text-zinc-600 border bg-white shadow-sm"
-                                    style={{ borderColor: pColor + '33' }}
-                                >
-                                    {venue.category || 'Booking page'}
+                                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                                    <Flower2 className="h-5 w-5" aria-hidden="true" />
                                 </span>
-                                <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight leading-tight mt-1">
-                                    {venue.name}
-                                </h1>
-                            </div>
-                        </div>
-
-                        {/* Action Buttons in bottom-right of header */}
-                        <div className="flex items-center gap-2 shrink-0">
-                            {/* 1. Смотреть все фото */}
-                            {uniqueImages.length > 0 && (
-                                <button
-                                    onClick={() => openLightbox(0)}
-                                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-200/80 bg-white/95 text-zinc-700 text-xs font-bold shadow-sm hover:bg-zinc-50 active:scale-[0.98] transition-all cursor-pointer"
-                                >
-                                    <Image className="w-3.5 h-3.5 text-zinc-500" />
-                                    <span>Смотреть все фото</span>
-                                </button>
                             )}
-                            {/* 2. Поделиться */}
-                            <button
-                                onClick={handleShare}
-                                className="flex items-center justify-center p-2 rounded-xl border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-sm hover:bg-zinc-50 active:scale-[0.98] transition-all cursor-pointer"
-                                title="Поделиться"
-                            >
-                                <Share2 className="w-4 h-4 text-zinc-500" />
-                            </button>
-                            {/* 3. Сердечко - избранное */}
+                            <span className="font-serif text-xl font-semibold tracking-wide text-foreground">
+                                {venue.name}
+                            </span>
+                        </a>
+
+                        <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
+                            <a href="#services" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                Услуги
+                            </a>
+                            <a href="#booking" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                Запись
+                            </a>
+                            {venue.description && (
+                                <a href="#about" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                    О салоне
+                                </a>
+                            )}
+                            {venue.staff_members.length > 0 && (
+                                <a href="#team" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                    Команда
+                                </a>
+                            )}
+                            <a href="#contacts" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                Контакты
+                            </a>
+                        </nav>
+
+                        <div className="flex items-center gap-2">
+                            {/* Favorite Button */}
                             <button
                                 onClick={handleToggleFavorite}
-                                className={`flex items-center justify-center p-2 rounded-xl border shadow-sm active:scale-[0.98] transition-all cursor-pointer ${isFavorite
+                                className={`flex items-center justify-center p-2.5 rounded-full border shadow-sm active:scale-[0.98] transition-all cursor-pointer ${isFavorite
                                     ? 'bg-rose-50 text-rose-500 border-rose-200/80 hover:bg-rose-100/50'
-                                    : 'border-zinc-200/80 bg-white/95 text-zinc-700 hover:bg-zinc-50'
+                                    : 'border-border bg-card text-muted-foreground hover:bg-secondary'
                                     }`}
                                 title={isFavorite ? "В избранном" : "Добавить в избранное"}
                             >
-                                <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-zinc-500'}`} />
+                                <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
                             </button>
+
+                            {/* Share Button */}
+                            <button
+                                onClick={handleShare}
+                                className="flex items-center justify-center p-2.5 rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:bg-secondary active:scale-[0.98] transition-all cursor-pointer"
+                                title="Поделиться"
+                            >
+                                <Share2 className="w-4 h-4" />
+                            </button>
+
+                            <a
+                                href="#booking"
+                                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                            >
+                                <Phone className="h-4 w-4" aria-hidden="true" />
+                                Записаться
+                            </a>
                         </div>
                     </div>
-                </div>
+                </header>
 
-                {/* Main Content Layout */}
-                <div className="max-w-5xl mx-auto px-4 mt-8 space-y-8">
-                    {/* Venue Quick Info Bar: Ratings, Address, Phone */}
-                    <div className="flex flex-wrap items-center justify-start gap-y-2.5 gap-x-6 text-sm text-zinc-500 py-1">
-                        {/* 1. Star Rating */}
-                        <div className="flex items-center gap-1.5 sm:border-r sm:border-zinc-200/80 sm:pr-6 last:border-0 last:pr-0">
-                            <div className="flex items-center gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <main>
+                    {/* Hero Section */}
+                    <section className="relative overflow-hidden border-b border-border/40">
+                        {/* Visual Ambient Glows */}
+                        <div className="absolute top-0 inset-x-0 h-[500px] bg-[radial-gradient(ellipse_at_top,var(--primary)/4%,transparent)] pointer-events-none" />
+                        <div className="absolute top-24 left-1/4 w-[300px] h-[300px] rounded-full blur-3xl pointer-events-none opacity-[0.04] bg-primary" />
+
+                        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:gap-12 md:px-6 md:py-24">
+                            <div className="flex flex-col gap-6 text-left">
+                                <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent/15 px-4 py-1.5 text-sm font-medium text-accent border border-accent/20">
+                                    <Star className="h-4 w-4 fill-accent text-accent" aria-hidden="true" />
+                                    {venue.category || 'Booking page'}
+                                </span>
+
+                                <h1 className="text-balance font-serif text-4xl font-semibold leading-tight text-foreground md:text-6xl">
+                                    {venue.name}
+                                </h1>
+
+                                <p className="max-w-md text-pretty leading-relaxed text-muted-foreground">
+                                    {venue.description || 'Индивидуальные программы ухода и оздоровления в атмосфере абсолютного покоя. Опытные мастера, натуральная косметика и удобная онлайн-запись.'}
+                                </p>
+
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <a
+                                        href="#booking"
+                                        className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 shadow-sm"
+                                    >
+                                        Записаться онлайн
+                                    </a>
+                                    <a
+                                        href="#services"
+                                        className="inline-flex items-center justify-center rounded-full border border-border bg-card px-7 py-3.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary shadow-sm"
+                                    >
+                                        Наши услуги
+                                    </a>
+                                </div>
+
+                                <div className="mt-2 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
+                                    <span className="inline-flex items-center gap-2">
+                                        <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
+                                        {getTodayWorkingHours()}
+                                    </span>
+                                    {(venue.address || venue.city) && (
+                                        <span className="inline-flex items-center gap-2">
+                                            <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
+                                            {venue.address}{venue.address && venue.city && ', '}{venue.city}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="relative">
+                                <div className="overflow-hidden rounded-3xl border border-border/60 shadow-sm aspect-[4/3] bg-card">
+                                    <img
+                                        src={uniqueImages[0] || '/images/hero-massage.png'}
+                                        alt={venue.name}
+                                        className="h-full w-full object-cover"
+                                    />
+                                </div>
+                                <div className="absolute -bottom-5 left-5 flex items-center gap-3 rounded-2xl border border-border/60 bg-card px-5 py-4 shadow-sm">
+                                    <div className="flex items-center gap-1 text-accent">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} className="h-4 w-4 fill-accent text-accent" aria-hidden="true" />
+                                        ))}
+                                    </div>
+                                    <div className="text-sm text-left">
+                                        <p className="font-semibold text-foreground">4.9 из 5</p>
+                                        <p className="text-muted-foreground">128+ отзывов</p>
+                                    </div>
+                                </div>
+
+                                {uniqueImages.length > 0 && (
+                                    <button
+                                        onClick={() => openLightbox(0)}
+                                        className="absolute top-4 right-4 flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card/90 text-foreground text-xs font-semibold shadow-sm hover:bg-card active:scale-[0.98] transition-all cursor-pointer backdrop-blur-xs"
+                                    >
+                                        <Image className="w-3.5 h-3.5 text-primary" />
+                                        <span>Смотреть галерею ({uniqueImages.length})</span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Services Section */}
+                    {venue.services.length > 0 && (
+                        <section id="services" className="scroll-mt-20 py-16 md:py-24 border-b border-border/40">
+                            <div className="mx-auto max-w-6xl px-4 md:px-6">
+                                <div className="mx-auto mb-12 max-w-2xl text-center">
+                                    <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
+                                        Наши Услуги
+                                    </p>
+                                    <h2 className="text-balance font-serif text-3xl font-semibold text-foreground md:text-4xl">
+                                        Уход и оздоровление тела и души
+                                    </h2>
+                                    <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
+                                        Выберите подходящую программу — каждый сеанс адаптируется под ваши индивидуальные пожелания и цели.
+                                    </p>
+                                </div>
+
+                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                    {venue.services.map((service, idx) => {
+                                        // Pick sequential placeholder images if no custom gallery, or use first image
+                                        const cardImage = uniqueImages[idx % uniqueImages.length] ||
+                                            (idx % 2 === 0 ? '/images/service-relax.png' : '/images/service-aroma.png');
+
+                                        return (
+                                            <article
+                                                key={service.id}
+                                                className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition-shadow hover:shadow-md text-left"
+                                            >
+                                                <div className="aspect-[3/2] overflow-hidden bg-secondary/20">
+                                                    <img
+                                                        src={cardImage}
+                                                        alt={service.name}
+                                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-103"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-1 flex-col gap-3 p-6">
+                                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                        <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
+                                                        {service.duration_minutes} мин
+                                                    </div>
+                                                    <h3 className="font-serif text-xl font-semibold text-foreground">
+                                                        {service.name}
+                                                    </h3>
+                                                    <p className="flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+                                                        {service.description || 'Нежное воздействие на body, способствующее снятию напряжения, восстановлению сил и расслаблению мышц.'}
+                                                    </p>
+                                                    <div className="mt-2 flex items-center justify-between border-t border-border/60 pt-4">
+                                                        <span className="text-lg font-semibold text-foreground">
+                                                            ${(service.price / 100).toFixed(2)}
+                                                        </span>
+                                                        <a
+                                                            href="#booking"
+                                                            className="text-sm font-medium text-primary transition-colors hover:text-accent flex items-center gap-0.5"
+                                                        >
+                                                            Записаться →
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Booking Section */}
+                    <section id="booking" className="scroll-mt-20 bg-secondary/50 py-16 md:py-24 border-b border-border/40">
+                        <div className="mx-auto max-w-6xl px-4 md:px-6">
+                            <div className="mx-auto mb-12 max-w-2xl text-center">
+                                <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
+                                    Онлайн-запись
+                                </p>
+                                <h2 className="text-balance font-serif text-3xl font-semibold text-foreground md:text-4xl">
+                                    Забронируйте удобное время
+                                </h2>
+                                <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
+                                    Выберите необходимую услугу, квалифицированного мастера и доступную дату — мы оперативно подтвердим ваш визит.
+                                </p>
+                            </div>
+
+                            <div className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm p-6 md:p-10">
+                                <VenueBookingWidget
+                                    venue={venue}
+                                    services={venue.services}
+                                    staffMembers={venue.staff_members}
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* About Section */}
+                    {venue.description && (
+                        <section id="about" className="scroll-mt-20 py-16 md:py-24 border-b border-border/40">
+                            <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-2 md:gap-14 md:px-6">
+                                <div className="overflow-hidden rounded-3xl border border-border/60 shadow-sm aspect-[4/3] bg-card">
+                                    <img
+                                        src={uniqueImages[1] || uniqueImages[0] || '/images/about-interior.png'}
+                                        alt="Интерьер салона"
+                                        className="h-full w-full object-cover"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-6 text-left">
+                                    <p className="text-sm font-medium uppercase tracking-widest text-primary">
+                                        О салоне
+                                    </p>
+                                    <h2 className="text-balance font-serif text-3xl font-semibold text-foreground md:text-4xl">
+                                        Пространство, где время замедляется
+                                    </h2>
+                                    <p className="text-pretty leading-relaxed text-muted-foreground text-sm md:text-base">
+                                        {venue.description}
+                                    </p>
+
+                                    <div className="mt-2 flex flex-col gap-5">
+                                        {features.map((f) => (
+                                            <div key={f.title} className="flex gap-4">
+                                                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/10">
+                                                    <f.icon className="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                                <div>
+                                                    <h3 className="font-serif text-base font-semibold text-foreground">{f.title}</h3>
+                                                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                                        {f.text}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Team Section */}
+                    {venue.staff_members.length > 0 && (
+                        <section id="team" className="scroll-mt-20 py-16 md:py-24 border-b border-border/40">
+                            <div className="mx-auto max-w-6xl px-4 md:px-6">
+                                <div className="mx-auto mb-12 max-w-2xl text-center">
+                                    <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
+                                        Наши специалисты
+                                    </p>
+                                    <h2 className="text-balance font-serif text-3xl font-semibold text-foreground md:text-4xl">
+                                        Команда профессионалов
+                                    </h2>
+                                    <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
+                                        Сертифицированные мастера с многолетним стажем помогут вам обрести гармонию и почувствовать легкость.
+                                    </p>
+                                </div>
+
+                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 justify-center">
+                                    {venue.staff_members.map((member) => (
+                                        <div
+                                            key={member.id}
+                                            className="p-5 border border-border rounded-2xl bg-card flex flex-col items-center text-center gap-4 shadow-sm hover:border-primary/30 transition-all duration-200"
+                                        >
+                                            {member.avatar ? (
+                                                <img
+                                                    src={member.avatar}
+                                                    alt={member.name}
+                                                    className="h-20 w-20 rounded-full object-cover border-2 border-primary/20 p-0.5"
+                                                />
+                                            ) : (
+                                                <div className="h-20 w-20 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center font-serif font-bold text-primary text-xl shadow-inner">
+                                                    {member.name.substring(0, 2).toUpperCase()}
+                                                </div>
+                                            )}
+                                            <div className="space-y-1">
+                                                <h4 className="font-serif text-lg font-semibold text-foreground">{member.name}</h4>
+                                                <p className="text-muted-foreground text-xs">{member.position || 'Специалист'}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Portfolio / Works Section */}
+                    {venue.portfolio && venue.portfolio.length > 0 && (
+                        <section className="py-16 md:py-24 border-b border-border/40">
+                            <div className="mx-auto max-w-6xl px-4 md:px-6">
+                                <div className="mx-auto mb-12 max-w-2xl text-center">
+                                    <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
+                                        Галерея работ
+                                    </p>
+                                    <h2 className="text-balance font-serif text-3xl font-semibold text-foreground md:text-4xl">
+                                        Наше портфолио
+                                    </h2>
+                                </div>
+
+                                <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                                    {venue.portfolio.map((imgUrl, idx) => (
+                                        <div
+                                            key={idx}
+                                            onClick={() => {
+                                                const originalIdx = uniqueImages.indexOf(imgUrl);
+                                                if (originalIdx !== -1) openLightbox(originalIdx);
+                                            }}
+                                            className="relative aspect-square rounded-2xl overflow-hidden border border-border bg-card shadow-sm cursor-pointer hover:opacity-95 transition-opacity"
+                                        >
+                                            <img
+                                                src={imgUrl}
+                                                alt={`Portfolio ${idx + 1}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Testimonials Section */}
+                    <section id="testimonials" className="scroll-mt-20 bg-secondary/50 py-16 md:py-24 border-b border-border/40">
+                        <div className="mx-auto max-w-6xl px-4 md:px-6">
+                            <div className="mx-auto mb-12 max-w-2xl text-center">
+                                <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
+                                    Отзывы
+                                </p>
+                                <h2 className="text-balance font-serif text-3xl font-semibold text-foreground md:text-4xl">
+                                    Что говорят наши гости
+                                </h2>
+                            </div>
+
+                            <div className="grid gap-6 md:grid-cols-3">
+                                {testimonials.map((t) => (
+                                    <figure
+                                        key={t.name}
+                                        className="flex flex-col gap-4 rounded-2xl border border-border/60 bg-card p-6 text-left"
+                                    >
+                                        <Quote className="h-7 w-7 text-primary/30" aria-hidden="true" />
+                                        <blockquote className="flex-1 text-pretty leading-relaxed text-foreground text-sm">
+                                            {t.text}
+                                        </blockquote>
+                                        <div className="flex items-center gap-1 text-accent">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} className="h-4 w-4 fill-accent text-accent" aria-hidden="true" />
+                                            ))}
+                                        </div>
+                                        <figcaption className="text-xs font-semibold text-muted-foreground">
+                                            {t.name}
+                                        </figcaption>
+                                    </figure>
                                 ))}
                             </div>
-                            <span className="font-bold text-zinc-800">4.9</span>
-                            <span className="text-zinc-400 text-xs">(128 отзывов)</span>
                         </div>
+                    </section>
+                </main>
 
-                        {/* 2. Address */}
-                        {(venue.address || venue.city) && (
-                            <div className="flex items-center gap-2 md:border-r md:border-zinc-200/80 md:pr-6 last:border-0 last:pr-0">
-                                <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-                                <span className="text-zinc-700">
-                                    {venue.address}{venue.address && venue.city && ', '}{venue.city}
+                {/* Site Footer */}
+                <footer id="contacts" className="scroll-mt-20 border-t border-border/60 bg-background">
+                    <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-3 md:px-6">
+                        <div className="flex flex-col gap-4 text-left">
+                            <div className="flex items-center gap-2.5">
+                                {venue.logo ? (
+                                    <img
+                                        src={venue.logo}
+                                        alt={venue.name}
+                                        className="h-8 w-8 rounded-lg object-cover border border-border shadow-xs"
+                                    />
+                                ) : (
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+                                        <Flower2 className="h-4.5 w-4.5" aria-hidden="true" />
+                                    </span>
+                                )}
+                                <span className="font-serif text-lg font-semibold text-foreground">
+                                    {venue.name}
                                 </span>
                             </div>
-                        )}
-
-                        {/* 3. Phone */}
-                        {venue.phone && (
-                            <div className="flex items-center gap-2 pr-6 last:border-0 last:pr-0">
-                                <Phone className="w-4 h-4 text-zinc-400 shrink-0" />
-                                <a href={`tel:${venue.phone}`} className="text-zinc-700 hover:text-zinc-950 transition-colors font-medium">
-                                    {venue.phone}
-                                </a>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Booking Widget: Centered Full-Width Row ("в целый ряд") */}
-                    <div className="w-full">
-                        <VenueBookingWidget
-                            venue={venue}
-                            services={venue.services}
-                            staffMembers={venue.staff_members}
-                        />
-                    </div>
-
-
-                    {venue.staff_members.length > 0 && (
-                        <section className="space-y-4">
-                            <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Our Team</h3>
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                {venue.staff_members.map((member) => (
-                                    <div key={member.id} className="p-3.5 border border-zinc-200 rounded-2xl bg-white flex items-center gap-3 shadow-sm hover:border-zinc-300 transition-colors duration-200">
-                                        {member.avatar ? (
-                                            <img src={member.avatar} alt={member.name} className="h-10 w-10 rounded-full object-cover border border-zinc-100" />
-                                        ) : (
-                                            <div className="h-10 w-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500 text-xs">
-                                                {member.name.substring(0, 2).toUpperCase()}
-                                            </div>
-                                        )}
-                                        <div>
-                                            <h4 className="font-bold text-sm text-zinc-800">{member.name}</h4>
-                                            <p className="text-zinc-500 text-xs">{member.position || 'Specialist'}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-
-                    {/* Portfolio Section */}
-                    {venue.portfolio && venue.portfolio.length > 0 && (
-                        <section className="space-y-4 pt-8 text-left">
-                            <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Portfolio & Works</h3>
-                            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-                                {venue.portfolio.map((imgUrl, idx) => (
-                                    <div key={idx} className="relative aspect-video sm:aspect-square rounded-2xl overflow-hidden border border-zinc-200/80 bg-zinc-100 shadow-sm hover:opacity-95 transition-opacity">
-                                        <img
-                                            src={imgUrl}
-                                            alt={`Portfolio ${idx + 1}`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Information Grid: Two Columns below the widget */}
-                    <div className="grid gap-8 md:grid-cols-2 pt-8 border-t border-zinc-200">
-                        {/* Column 1: About Us & Team */}
-                        <div className="space-y-8 text-left">
-                            {venue.description && (
-                                <section className="space-y-3">
-                                    <h3 className="text-lg font-bold text-zinc-900 tracking-tight">About us</h3>
-                                    <p className="text-zinc-600 text-sm leading-relaxed">{venue.description}</p>
-                                </section>
-                            )}
-
-
+                            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
+                                {venue.category || 'Салон массажа и SPA'}. Место, где вы можете позволить себе замедлиться и восстановить силы.
+                            </p>
                         </div>
 
+                        <div className="flex flex-col gap-3 text-left">
+                            <h3 className="font-serif text-base font-semibold text-foreground">Контакты</h3>
+                            {venue.phone && (
+                                <a
+                                    href={`tel:${venue.phone}`}
+                                    className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
+                                    {venue.phone}
+                                </a>
+                            )}
+                            <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                                <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
+                                {venue.address || 'Адрес не указан'}{venue.address && venue.city && ', '}{venue.city}
+                            </span>
+                        </div>
 
-
-
-
-                        {/* Column 2: Contact Details & Working Hours */}
-                        <div className="space-y-8 text-left">
-
-
-                            <section className="space-y-3">
-                                <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Working Hours</h3>
-                                <div className="space-y-1.5 text-xs text-zinc-600">
+                        <div className="flex flex-col gap-3 text-left">
+                            <h3 className="font-serif text-base font-semibold text-foreground">Часы работы</h3>
+                            {venue.working_hours && venue.working_hours.length > 0 ? (
+                                <div className="space-y-1">
                                     {DISPLAY_ORDER.map((dayIndex) => {
                                         const hrs = venue.working_hours.find(h => h.day_of_week === dayIndex);
                                         if (!hrs) return null;
 
                                         return (
-                                            <div key={dayIndex} className="flex justify-between max-w-[280px]">
-                                                <span className="font-medium text-zinc-400">{DAY_NAMES[dayIndex]}</span>
+                                            <div key={dayIndex} className="flex justify-between max-w-[240px] text-xs text-muted-foreground">
+                                                <span>{DAY_NAMES[dayIndex]}</span>
                                                 {hrs.is_day_off ? (
-                                                    <span className="text-zinc-400 italic">Closed</span>
+                                                    <span className="italic opacity-60">Closed</span>
                                                 ) : (
-                                                    <span className="text-zinc-700 font-semibold">
+                                                    <span className="font-medium text-foreground">
                                                         {formatTime(hrs.open_time)} - {formatTime(hrs.close_time)}
                                                     </span>
                                                 )}
@@ -438,27 +689,39 @@ export default function PublicVenuePage({ venue }: Props) {
                                         );
                                     })}
                                 </div>
-                            </section>
+                            ) : (
+                                <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
+                                    Режим работы не указан
+                                </span>
+                            )}
+                            <a
+                                href="#booking"
+                                className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 shadow-sm"
+                            >
+                                Записаться онлайн
+                            </a>
                         </div>
                     </div>
 
-
-
-
-                    <div className="border-t border-zinc-200 pt-6 flex items-center gap-2 text-zinc-400 text-xs text-left">
-                        <ShieldCheck className="w-4 h-4 text-zinc-400" />
-                        <span>Secured booking page. Confirmation details sent to your email.</span>
+                    <div className="border-t border-border/60 py-6 text-center text-sm text-muted-foreground">
+                        <div className="mx-auto max-w-6xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:px-6">
+                            <span>© {new Date().getFullYear()} {venue.name}. Все права защищены.</span>
+                            <span className="flex items-center gap-1.5 text-xs text-muted-foreground/80">
+                                <Check className="w-4 h-4 text-primary" />
+                                Страница онлайн-записи
+                            </span>
+                        </div>
                     </div>
-
-                </div>
-            </main>
+                </footer>
+            </div>
 
             {/* Lightbox Modal */}
             {lightboxOpen && (
-                <div className="fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-between p-4 md:p-8 animate-in fade-in duration-200">
+                <div className="fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-between p-4 md:p-8 animate-in fade-in duration-200">
                     {/* Header: Close Button and Counter */}
                     <div className="w-full flex items-center justify-between text-white max-w-5xl">
-                        <span className="text-sm font-medium text-zinc-400">
+                        <span className="text-sm font-medium text-zinc-400 font-serif">
                             {currentImgIdx + 1} / {uniqueImages.length}
                         </span>
                         <button

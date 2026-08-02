@@ -19,7 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Nested resources
     Route::resource('dashboard/venues/{venue}/services', ServiceController::class)->only(['store', 'update', 'destroy']);
     Route::post('dashboard/venues/{venue}/staff', [StaffController::class, 'store'])->name('staff.store');
-    Route::post('dashboard/venues/{venue}/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+    Route::put('dashboard/venues/{venue}/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
     Route::delete('dashboard/venues/{venue}/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy');
     Route::put('dashboard/venues/{venue}/working-hours', [WorkingHourController::class, 'update'])->name('working-hours.update');
     Route::patch('dashboard/bookings/{booking}/status', [BookingManagementController::class, 'updateStatus'])->name('bookings.status.update');

@@ -62,6 +62,7 @@ class VenueController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'primary_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'font' => ['nullable', 'string', 'in:sans,serif,mono'],
         ]);
 
         $venue = $request->user()->venues()->create(array_merge($validated, [
@@ -129,6 +130,7 @@ class VenueController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'primary_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'font' => ['nullable', 'string', 'in:sans,serif,mono'],
             'is_active' => ['required', 'boolean'],
             'logo' => ['nullable', 'image', 'max:2048'],
             'remove_logo' => ['nullable', 'boolean'],
@@ -221,6 +223,7 @@ class VenueController extends Controller
         $venue->address = $validated['address'];
         $venue->city = $validated['city'];
         $venue->primary_color = $validated['primary_color'];
+        $venue->font = $validated['font'] ?? 'sans';
         $venue->is_active = $validated['is_active'];
         
         $venue->save();
